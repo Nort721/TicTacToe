@@ -139,11 +139,11 @@ void playerMove()
 		}
 
 		printf("row: ");
-		scanf("%d", &row);
+		scanf_s("%d", &row);
 		row--;
 
 		printf("column: ");
-		scanf("%d", &col);
+		scanf_s("%d", &col);
 		col--;
 
 		round++;
