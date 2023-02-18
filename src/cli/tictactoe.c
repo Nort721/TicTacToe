@@ -1,18 +1,18 @@
-#include "tictactoe.h"
+#include "../cli/tictactoe.h"
 
 /*
  * ToDo:
- * - make GUI
+ * - separate this cli version of the project to a separate project file
  */
 
-const int ROWS = 3;
-const int COLS = 3;
-char board[3][3];
+const int _ROWS = 3;
+const int _COLS = 3;
+char _board[3][3];
 
-const char PLAYER = 'X';
-const char COMPUTER = 'O';
+const char _PLAYER = 'X';
+const char _COMPUTER = 'O';
 
-char get_winner(char board[3][3]);
+char get_winner(char _board[3][3]);
 void reset_board();
 void print_board();
 void player_move();
@@ -47,7 +47,7 @@ int main(void) {
 
 		print_board();
 
-		winner = get_winner(board);
+		winner = get_winner(_board);
 
 		current_turn *= -1;
 	}
@@ -65,33 +65,33 @@ int main(void) {
 	return EXIT_SUCCESS;
 }
 
-char get_winner(char board_arg[3][3])
+char get_winner(char _board_arg[3][3])
 {
 	for (int i = 0; i < 3; i++)
 	{
-		// check rows
-		if (board_arg[i][0] == board_arg[i][1] && board_arg[i][1] == board_arg[i][2] && board_arg[i][2] != ' ')
+		// check __ROWS
+		if (_board_arg[i][0] == _board_arg[i][1] && _board_arg[i][1] == _board_arg[i][2] && _board_arg[i][2] != ' ')
 		{
-			return board_arg[i][0];
+			return _board_arg[i][0];
 		}
 
 		// check colms
-		if (board_arg[0][i] == board_arg[1][i] && board_arg[1][i] == board_arg[2][i] && board_arg[2][i] != ' ')
+		if (_board_arg[0][i] == _board_arg[1][i] && _board_arg[1][i] == _board_arg[2][i] && _board_arg[2][i] != ' ')
 		{
-			return board_arg[0][i];
+			return _board_arg[0][i];
 		}
 	}
 
 	// right to left diagonal
-	if (board_arg[0][0] == board_arg[1][1] && board_arg[1][1] == board_arg[2][2])
+	if (_board_arg[0][0] == _board_arg[1][1] && _board_arg[1][1] == _board_arg[2][2])
 	{
-		return board_arg[1][1];
+		return _board_arg[1][1];
 	}
 	else
 	{
-		if (board_arg[0][2] == board_arg[1][1] && board_arg[1][1] == board_arg[2][0])
+		if (_board_arg[0][2] == _board_arg[1][1] && _board_arg[1][1] == _board_arg[2][0])
 		{
-			return board_arg[0][2];
+			return _board_arg[0][2];
 		}
 	}
 
@@ -100,11 +100,11 @@ char get_winner(char board_arg[3][3])
 
 void reset_board()
 {
-	for (int i = 0; i < ROWS; i++)
+	for (int i = 0; i < _ROWS; i++)
 	{
-		for (int j = 0; j < COLS; j++)
+		for (int j = 0; j < _COLS; j++)
 		{
-			board[i][j] = ' ';
+			_board[i][j] = ' ';
 		}
 	}
 }
@@ -112,16 +112,16 @@ void reset_board()
 void print_board()
 {
 	//system("clear");
-	printf("\n %c | %c | %c \n", board[0][0], board[0][1], board[0][2]);
+	printf("\n %c | %c | %c \n", _board[0][0], _board[0][1], _board[0][2]);
 	printf("---|---|--- \n");
-	printf(" %c | %c | %c \n", board[1][0], board[1][1], board[1][2]);
+	printf(" %c | %c | %c \n", _board[1][0], _board[1][1], _board[1][2]);
 	printf("---|---|--- \n");
-	printf(" %c | %c | %c \n", board[2][0], board[2][1], board[2][2]);
+	printf(" %c | %c | %c \n", _board[2][0], _board[2][1], _board[2][2]);
 }
 
 bool is_pos_not_legal(int row, int col)
 {
-	return row < 0 || col < 0 || row > 3 || col > 3 || board[row][col] != ' ';
+	return row < 0 || col < 0 || row > 3 || col > 3 || _board[row][col] != ' ';
 }
 
 void player_move()
@@ -148,7 +148,7 @@ void player_move()
 		round++;
 	}
 
-	board[row][col] = PLAYER;
+	_board[row][col] = _PLAYER;
 	printf("player marked [%d, %d]\n", row+1, col+1);
 }
 
@@ -172,7 +172,7 @@ move bf_winning_move()
 	{
 		for (int j = 0; j < 3; j++)
 		{
-			if (board[i][j] == ' ')
+			if (_board[i][j] == ' ')
 			{
 				move * new_possible_moves_ptr = realloc(possible_moves_ptr, index * sizeof(mv));
 				new_possible_moves_ptr[index].row = i;
@@ -187,30 +187,30 @@ move bf_winning_move()
 	int possible_moves_ptr_size = index * sizeof(mv);
 
 	/*
-	 * for each possible move copy the board in
+	 * for each possible move copy the _board in
 	 * its current state and apply the move, than
 	 * check for winner
 	 */
 	for (int i = 0; i < possible_moves_ptr_size; i++)
 	{
-		char board_copy[3][3];
+		char _board_copy[3][3];
 
-		// copies board data to boardCopy
+		// copies _board data to _boardCopy
 		for (int idx = 0; idx < 3; idx++)
 		{
 			for (int j = 0; j < 3; j++)
 			{
-				board_copy[idx][j] = board[idx][j];
+				_board_copy[idx][j] = _board[idx][j];
 			}
 		}
 
 		move next_move = possible_moves_ptr[i];
 
 		// check if that move can make computer or player win
-		board_copy[next_move.row][next_move.col] = COMPUTER;
-		char winner_comp = get_winner(board_copy);
-		board_copy[next_move.row][next_move.col] = PLAYER;
-		char winner_plyr = get_winner(board_copy);
+		_board_copy[next_move.row][next_move.col] = _COMPUTER;
+		char winner_comp = get_winner(_board_copy);
+		_board_copy[next_move.row][next_move.col] = _PLAYER;
+		char winner_plyr = get_winner(_board_copy);
 
 		if (winner_comp != ' ' || winner_plyr != ' ')
 		{
@@ -254,13 +254,13 @@ void computer_move()
 	 */
 	while (is_pos_not_legal(row, col))
 	{
-		row = rand() % ROWS;
+		row = rand() % _ROWS;
 		//sleep(1);
-		col = rand() % COLS;
+		col = rand() % _COLS;
 		move_origin = 2;
 	}
 
-	board[row][col] = COMPUTER;
+	_board[row][col] = _COMPUTER;
 
 	char *org = (move_origin == 2 ? "RND" : "AI");
 
@@ -271,11 +271,11 @@ int get_empty_spaces_amount()
 {
 	int empty_spaces = 9;
 
-	for (int i = 0; i < ROWS; i++)
+	for (int i = 0; i < _ROWS; i++)
 	{
-		for (int j = 0; j < COLS; j++)
+		for (int j = 0; j < _COLS; j++)
 		{
-			if (board[i][j] != ' ')
+			if (_board[i][j] != ' ')
 			{
 				empty_spaces--;
 			}
@@ -285,4 +285,7 @@ int get_empty_spaces_amount()
 	return empty_spaces;
 }
 
+void on_press(int row, int col)
+{
 
+}
