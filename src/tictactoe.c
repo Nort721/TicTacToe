@@ -20,8 +20,7 @@ void computer_move();
 int get_empty_spaces_amount();
 
 
-int currentTurn;
-int lastSudoRandom = 0;
+int current_turn;
 
 int main(void) {
 	printf("\n=+= TicTacToe =+=\n\n");
@@ -33,11 +32,11 @@ int main(void) {
 	reset_board();
 	print_board();
 
-	currentTurn = rand() % 10 > 5 ? -1 : 1;
+	current_turn = rand() % 10 > 5 ? -1 : 1;
 
 	while (get_empty_spaces_amount() != 0 && winner == ' ')
 	{
-		if (currentTurn == 1)
+		if (current_turn == 1)
 		{
 			player_move();
 		}
@@ -50,7 +49,7 @@ int main(void) {
 
 		winner = get_winner(board);
 
-		currentTurn *= -1;
+		current_turn *= -1;
 	}
 
 	if (winner == ' ')
@@ -167,7 +166,7 @@ move bf_winning_move()
 	int index = 0;
 	move mv;
 
-	move * possibleMoves_ptr = malloc(sizeof(mv));
+	move * possible_moves_ptr = malloc(sizeof(mv));
 
 	for (int i = 0; i < 3; i++)
 	{
@@ -175,65 +174,64 @@ move bf_winning_move()
 		{
 			if (board[i][j] == ' ')
 			{
-				move * newPossibleMoves_ptr = realloc(possibleMoves_ptr, index * sizeof(mv));
-
-				newPossibleMoves_ptr[index].row = i;
-				newPossibleMoves_ptr[index].col = j;
+				move * new_possible_moves_ptr = realloc(possible_moves_ptr, index * sizeof(mv));
+				new_possible_moves_ptr[index].row = i;
+				new_possible_moves_ptr[index].col = j;
 				index++;
 
-				possibleMoves_ptr = newPossibleMoves_ptr;
+				possible_moves_ptr = new_possible_moves_ptr;
 			}
 		}
 	}
 
-	int possibleMovesPtrSize = index * sizeof(mv);
+	int possible_moves_ptr_size = index * sizeof(mv);
 
 	/*
 	 * for each possible move copy the board in
 	 * its current state and apply the move, than
 	 * check for winner
 	 */
-	for (int i = 0; i < possibleMovesPtrSize; i++)
+	for (int i = 0; i < possible_moves_ptr_size; i++)
 	{
-		char boardCopy[3][3];
+		char board_copy[3][3];
 
 		// copies board data to boardCopy
 		for (int idx = 0; idx < 3; idx++)
 		{
 			for (int j = 0; j < 3; j++)
 			{
-				boardCopy[idx][j] = board[idx][j];
+				board_copy[idx][j] = board[idx][j];
 			}
 		}
 
-		move nextMove = possibleMoves_ptr[i];
+		move next_move = possible_moves_ptr[i];
 
 		// check if that move can make computer or player win
-		boardCopy[nextMove.row][nextMove.col] = COMPUTER;
-		char winner_comp = get_winner(boardCopy);
-		boardCopy[nextMove.row][nextMove.col] = PLAYER;
-		char winner_plyr = get_winner(boardCopy);
+		board_copy[next_move.row][next_move.col] = COMPUTER;
+		char winner_comp = get_winner(board_copy);
+		board_copy[next_move.row][next_move.col] = PLAYER;
+		char winner_plyr = get_winner(board_copy);
 
 		if (winner_comp != ' ' || winner_plyr != ' ')
 		{
-			return nextMove;
+			return next_move;
 		}
 	}
 
-	free(possibleMoves_ptr);
+	free(possible_moves_ptr);
 
 	// no winning move, return an illegal move as a flag
-	move noWinMove;
-	noWinMove.row = -1;
-	noWinMove.col = -1;
+	move no_win_move;
+	no_win_move.row = -1;
+	no_win_move.col = -1;
 
-	return noWinMove;
+	return no_win_move;
 }
 
 void computer_move()
 {
 	printf("\ncalculating move . . .\n");
-	int moveOrigin = 1;
+	int move_origin = 1;
 
 	int row = -1;
 	int col = -1;
@@ -244,9 +242,9 @@ void computer_move()
 	 * move for computer than take it, otherwise block
 	 * the opponent
 	 */
-	move winningMove = bf_winning_move();
-	row = winningMove.row;
-	col = winningMove.col;
+	move winning_move = bf_winning_move();
+	row = winning_move.row;
+	col = winning_move.col;
 
 	/*
 	 * illegal position means bot logic
@@ -256,22 +254,22 @@ void computer_move()
 	 */
 	while (is_pos_not_legal(row, col))
 	{
-		row = rand() % 3;
+		row = rand() % ROWS;
 		//sleep(1);
-		col = rand() % 3;
-		moveOrigin = 2;
+		col = rand() % COLS;
+		move_origin = 2;
 	}
 
 	board[row][col] = COMPUTER;
 
-	char *org = (moveOrigin == 2 ? "RND" : "AI");
+	char *org = (move_origin == 2 ? "RND" : "AI");
 
 	printf("computer marked [%d, %d][%s]\n", row+1, col+1, org);
 }
 
 int get_empty_spaces_amount()
 {
-	int emptySpaces = 9;
+	int empty_spaces = 9;
 
 	for (int i = 0; i < ROWS; i++)
 	{
@@ -279,12 +277,12 @@ int get_empty_spaces_amount()
 		{
 			if (board[i][j] != ' ')
 			{
-				emptySpaces--;
+				empty_spaces--;
 			}
 		}
 	}
 
-	return emptySpaces;
+	return empty_spaces;
 }
 
 
