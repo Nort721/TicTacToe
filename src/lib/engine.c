@@ -1,4 +1,4 @@
-#include "../gui/headers/engine.h"
+#include "../lib/headers/engine.h"
 
 /*
  * compiling command

@@ -1,4 +1,4 @@
-#include "../gui/headers/uiapi.h"
+#include "../lib/headers/uiapi.h"
 
 const char NO_WINNER_CONTINUE_GAME = 'N';
 const char NO_WINNER_END_GAME = 'X';

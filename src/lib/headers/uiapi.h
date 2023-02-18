@@ -5,16 +5,17 @@
  *      Author: nort
  */
 
-#ifndef GUI_HEADERS_UIAPI_H_
-#define GUI_HEADERS_UIAPI_H_
+#ifndef LIB_HEADERS_UIAPI_H_
+#define LIB_HEADERS_UIAPI_H_
 
 #include <stdio.h>
 #include <stdlib.h>
-#include "engine.h"
+
+#include "../../lib/headers/engine.h"
 
 void init();
 char get_first_turn();
 char on_player_turn(int row, int col);
 ai_turn play_computer_turn();
 
-#endif /* GUI_HEADERS_UIAPI_H_ */
+#endif /* LIB_HEADERS_UIAPI_H_ */
