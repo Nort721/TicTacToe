@@ -1,7 +1,4 @@
-#include <stdio.h>
-#include <stdlib.h>
-#include <stdbool.h>
-#include <time.h>
+#include "tictactoe.h"
 
 /*
  * ToDo:
@@ -15,40 +12,43 @@ char board[3][3];
 const char PLAYER = 'X';
 const char COMPUTER = 'O';
 
-void resetBoard();
-void printBoard();
-int getEmptySpacesAmount();
-void playerMove();
-void computerMove();
-int genSudoRandomIndex();
-char getWinner(char board[3][3]);
+char get_winner(char board[3][3]);
+void reset_board();
+void print_board();
+void player_move();
+void computer_move();
+int get_empty_spaces_amount();
 
 
-int currentTurn = 1;
+int currentTurn;
 int lastSudoRandom = 0;
 
 int main(void) {
 	printf("\n=+= TicTacToe =+=\n\n");
 
+	srand(time(NULL));
+
 	char winner = ' ';
 
-	resetBoard();
-	printBoard();
+	reset_board();
+	print_board();
 
-	while (getEmptySpacesAmount() != 0 && winner == ' ')
+	currentTurn = rand() % 10 > 5 ? -1 : 1;
+
+	while (get_empty_spaces_amount() != 0 && winner == ' ')
 	{
 		if (currentTurn == 1)
 		{
-			playerMove();
+			player_move();
 		}
 		else
 		{
-			computerMove();
+			computer_move();
 		}
 
-		printBoard();
+		print_board();
 
-		winner = getWinner(board);
+		winner = get_winner(board);
 
 		currentTurn *= -1;
 	}
@@ -66,7 +66,7 @@ int main(void) {
 	return EXIT_SUCCESS;
 }
 
-char getWinner(char board_arg[3][3])
+char get_winner(char board_arg[3][3])
 {
 	for (int i = 0; i < 3; i++)
 	{
@@ -99,7 +99,7 @@ char getWinner(char board_arg[3][3])
 	return ' ';
 }
 
-void resetBoard()
+void reset_board()
 {
 	for (int i = 0; i < ROWS; i++)
 	{
@@ -110,7 +110,7 @@ void resetBoard()
 	}
 }
 
-void printBoard()
+void print_board()
 {
 	//system("clear");
 	printf("\n %c | %c | %c \n", board[0][0], board[0][1], board[0][2]);
@@ -120,18 +120,18 @@ void printBoard()
 	printf(" %c | %c | %c \n", board[2][0], board[2][1], board[2][2]);
 }
 
-bool isPosNotLegal(int row, int col)
+bool is_pos_not_legal(int row, int col)
 {
 	return row < 0 || col < 0 || row > 3 || col > 3 || board[row][col] != ' ';
 }
 
-void playerMove()
+void player_move()
 {
 	int row = -1;
 	int col = -1;
 	int round = 0;
 
-	while (isPosNotLegal(row, col))
+	while (is_pos_not_legal(row, col))
 	{
 		if (round > 0)
 		{
@@ -139,11 +139,11 @@ void playerMove()
 		}
 
 		printf("row: ");
-		scanf_s("%d", &row);
+		scanf("%d", &row);
 		row--;
 
 		printf("column: ");
-		scanf_s("%d", &col);
+		scanf("%d", &col);
 		col--;
 
 		round++;
@@ -153,26 +153,21 @@ void playerMove()
 	printf("player marked [%d, %d]\n", row+1, col+1);
 }
 
-int genSudoRandomIndex()
-{
-	srand(time(NULL));
-	return rand() % 3;
-}
-
 struct move {
 	int row;
 	int col;
 };
+typedef struct move move;
 
 // bruteforce searches for winning moves
-struct move bfWinningMove()
+move bf_winning_move()
 {
 	// generate all possible moves
 	//struct move possibleMoves[9];
 	int index = 0;
-	struct move mv;
+	move mv;
 
-	struct move * possibleMoves_ptr = malloc(sizeof(mv));
+	move * possibleMoves_ptr = malloc(sizeof(mv));
 
 	for (int i = 0; i < 3; i++)
 	{
@@ -180,7 +175,7 @@ struct move bfWinningMove()
 		{
 			if (board[i][j] == ' ')
 			{
-				struct move * newPossibleMoves_ptr = realloc(possibleMoves_ptr, index * sizeof(mv));
+				move * newPossibleMoves_ptr = realloc(possibleMoves_ptr, index * sizeof(mv));
 
 				newPossibleMoves_ptr[index].row = i;
 				newPossibleMoves_ptr[index].col = j;
@@ -211,13 +206,13 @@ struct move bfWinningMove()
 			}
 		}
 
-		struct move nextMove = possibleMoves_ptr[i];
+		move nextMove = possibleMoves_ptr[i];
 
 		// check if that move can make computer or player win
 		boardCopy[nextMove.row][nextMove.col] = COMPUTER;
-		char winner_comp = getWinner(boardCopy);
+		char winner_comp = get_winner(boardCopy);
 		boardCopy[nextMove.row][nextMove.col] = PLAYER;
-		char winner_plyr = getWinner(boardCopy);
+		char winner_plyr = get_winner(boardCopy);
 
 		if (winner_comp != ' ' || winner_plyr != ' ')
 		{
@@ -225,15 +220,17 @@ struct move bfWinningMove()
 		}
 	}
 
+	free(possibleMoves_ptr);
+
 	// no winning move, return an illegal move as a flag
-	struct move noWinMove;
+	move noWinMove;
 	noWinMove.row = -1;
 	noWinMove.col = -1;
 
 	return noWinMove;
 }
 
-void computerMove()
+void computer_move()
 {
 	printf("\ncalculating move . . .\n");
 	int moveOrigin = 1;
@@ -247,7 +244,7 @@ void computerMove()
 	 * move for computer than take it, otherwise block
 	 * the opponent
 	 */
-	struct move winningMove = bfWinningMove();
+	move winningMove = bf_winning_move();
 	row = winningMove.row;
 	col = winningMove.col;
 
@@ -257,11 +254,11 @@ void computerMove()
 	 * which case will generate a random
 	 * move
 	 */
-	while (isPosNotLegal(row, col))
+	while (is_pos_not_legal(row, col))
 	{
-		row = genSudoRandomIndex();
+		row = rand() % 3;
 		//sleep(1);
-		col = genSudoRandomIndex();
+		col = rand() % 3;
 		moveOrigin = 2;
 	}
 
@@ -272,7 +269,7 @@ void computerMove()
 	printf("computer marked [%d, %d][%s]\n", row+1, col+1, org);
 }
 
-int getEmptySpacesAmount()
+int get_empty_spaces_amount()
 {
 	int emptySpaces = 9;
 
