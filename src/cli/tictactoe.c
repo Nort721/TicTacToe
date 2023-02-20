@@ -162,58 +162,60 @@ typedef struct move move;
 move bf_winning_move()
 {
 	// generate all possible moves
-	//struct move possibleMoves[9];
 	int index = 0;
 	move mv;
 
-	move * possible_moves_ptr = malloc(sizeof(mv));
+	// allocate enough memory for maximum amount of moves
+	move * possible_moves_ptr = malloc(_ROWS * _COLS * sizeof(mv));
 
-	for (int i = 0; i < 3; i++)
+	if (possible_moves_ptr == NULL)
 	{
-		for (int j = 0; j < 3; j++)
+		fprintf(stderr, "Error: failed to allocate memory for possible moves\n");
+		exit(1);
+	}
+
+	for (int i = 0; i < _ROWS; i++)
+	{
+		for (int j = 0; j < _COLS; j++)
 		{
 			if (_board[i][j] == ' ')
 			{
-				move * new_possible_moves_ptr = realloc(possible_moves_ptr, index * sizeof(mv));
-				new_possible_moves_ptr[index].row = i;
-				new_possible_moves_ptr[index].col = j;
+				possible_moves_ptr[index].row = i;
+				possible_moves_ptr[index].col = j;
 				index++;
-
-				possible_moves_ptr = new_possible_moves_ptr;
 			}
 		}
 	}
 
-	int possible_moves_ptr_size = index * sizeof(mv);
-
 	/*
-	 * for each possible move copy the _board in
+	 * for each possible move copy the board in
 	 * its current state and apply the move, than
 	 * check for winner
 	 */
-	for (int i = 0; i < possible_moves_ptr_size; i++)
+	for (int i = 0; i < index; i++)
 	{
-		char _board_copy[3][3];
+		char board_copy[_ROWS][_COLS];
 
-		// copies _board data to _boardCopy
-		for (int idx = 0; idx < 3; idx++)
+		// copies board data to boardCopy
+		for (int idx = 0; idx < _ROWS; idx++)
 		{
-			for (int j = 0; j < 3; j++)
+			for (int j = 0; j < _COLS; j++)
 			{
-				_board_copy[idx][j] = _board[idx][j];
+				board_copy[idx][j] = _board[idx][j];
 			}
 		}
 
 		move next_move = possible_moves_ptr[i];
 
 		// check if that move can make computer or player win
-		_board_copy[next_move.row][next_move.col] = _COMPUTER;
-		char winner_comp = get_winner(_board_copy);
-		_board_copy[next_move.row][next_move.col] = _PLAYER;
-		char winner_plyr = get_winner(_board_copy);
+		board_copy[next_move.row][next_move.col] = _COMPUTER;
+		char winner_comp = get_winner(board_copy);
+		board_copy[next_move.row][next_move.col] = _PLAYER;
+		char winner_plyr = get_winner(board_copy);
 
 		if (winner_comp != ' ' || winner_plyr != ' ')
 		{
+			free(possible_moves_ptr);
 			return next_move;
 		}
 	}

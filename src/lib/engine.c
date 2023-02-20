@@ -82,11 +82,17 @@ void player_move(int row, int col)
 move bf_winning_move()
 {
 	// generate all possible moves
-	//struct move possibleMoves[9];
 	int index = 0;
 	move mv;
 
-	move * possible_moves_ptr = malloc(sizeof(mv));
+	// allocate enough memory for maximum amount of moves
+	move * possible_moves_ptr = malloc(ROWS * COLS * sizeof(mv));
+
+	if (possible_moves_ptr == NULL)
+	{
+		fprintf(stderr, "Error: failed to allocate memory for possible moves\n");
+		exit(1);
+	}
 
 	for (int i = 0; i < ROWS; i++)
 	{
@@ -94,24 +100,19 @@ move bf_winning_move()
 		{
 			if (board[i][j] == ' ')
 			{
-				move * new_possible_moves_ptr = realloc(possible_moves_ptr, index * sizeof(mv));
-				new_possible_moves_ptr[index].row = i;
-				new_possible_moves_ptr[index].col = j;
+				possible_moves_ptr[index].row = i;
+				possible_moves_ptr[index].col = j;
 				index++;
-
-				possible_moves_ptr = new_possible_moves_ptr;
 			}
 		}
 	}
-
-	int possible_moves_ptr_size = index * sizeof(mv);
 
 	/*
 	 * for each possible move copy the board in
 	 * its current state and apply the move, than
 	 * check for winner
 	 */
-	for (int i = 0; i < possible_moves_ptr_size; i++)
+	for (int i = 0; i < index; i++)
 	{
 		char board_copy[ROWS][COLS];
 
@@ -134,11 +135,12 @@ move bf_winning_move()
 
 		if (winner_comp != ' ' || winner_plyr != ' ')
 		{
+			free(possible_moves_ptr);
 			return next_move;
 		}
 	}
 
-	//free(possible_moves_ptr);
+	free(possible_moves_ptr);
 
 	// no winning move, return an illegal move as a flag
 	move no_win_move;

@@ -7,7 +7,7 @@ class ai_turn(ctypes.Structure):
     _fields_ = [
         ("row", ctypes.c_int),
         ("col", ctypes.c_int),
-        ("flag", ctypes.c_char_p),
+        ("flag", ctypes.c_char),
     ]
 
 def get_first_to_play():
@@ -48,5 +48,4 @@ print(f'player turn result: {player_turn_result}')
 ai_turn_result = run_computer_turn()
 
 print(f'ai turn result: {ai_turn_result.row}, {ai_turn_result.col}, {ai_turn_result.flag.decode()}')
-
 
