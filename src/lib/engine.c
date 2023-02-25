@@ -30,7 +30,7 @@ char decide_first_turn()
 	return (rand() % 10 > 5 ? -1 : 1) == -1 ? COMPUTER : PLAYER;
 }
 
-char get_winner(char board_arg[ROWS][COLS])
+static char get_winner(char board_arg[ROWS][COLS])
 {
 	for (int i = 0; i < 3; i++)
 	{
@@ -79,7 +79,7 @@ void player_move(int row, int col)
 }
 
 // bruteforce searches for winning moves
-move bf_winning_move()
+static move bf_winning_move()
 {
 	// generate all possible moves
 	int index = 0;
