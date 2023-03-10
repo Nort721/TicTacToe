@@ -13,4 +13,10 @@
 #include <stdbool.h>
 #include <time.h>
 
+struct move {
+	int row;
+	int col;
+};
+typedef struct move move;
+
 #endif /* TICTACTOE_H_ */
