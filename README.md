@@ -1,2 +1,2 @@
 # TicTacToe
-A simple tictactoe game
+Just an excuse to play around with C
