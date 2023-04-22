@@ -112,6 +112,10 @@ static move bf_winning_move()
 	 * its current state and apply the move, than
 	 * check for winner
 	 */
+	move * winning_moves = malloc(ROWS * COLS * sizeof(mv));
+	int winning_moves_index = 0;
+	move * player_blocking_moves = malloc(ROWS * COLS * sizeof(mv));
+	int blocking_moves_index = 0;
 	for (int i = 0; i < index; i++)
 	{
 		char board_copy[ROWS][COLS];
@@ -133,16 +137,113 @@ static move bf_winning_move()
 		board_copy[next_move.row][next_move.col] = PLAYER;
 		char winner_plyr = get_winner(board_copy);
 
-		if (winner_comp != ' ' || winner_plyr != ' ')
+		if (winner_comp != ' ')
 		{
-			free(possible_moves_ptr);
-			return next_move;
+			winning_moves[winning_moves_index] = next_move;
+			winning_moves_index++;
 		}
+
+		if (winner_plyr != ' ')
+		{
+			player_blocking_moves[blocking_moves_index] = next_move;
+			blocking_moves_index++;
+		}
+	}
+
+	// first priority - winning moves
+	if (winning_moves_index > 0)
+	{
+		move the_winning_move = winning_moves[rand() % winning_moves_index];
+		free(winning_moves);
+		return the_winning_move;
+	}
+
+	// second priority - block the player from winning
+	if (blocking_moves_index > 0)
+	{
+		move cock_block_move = player_blocking_moves[rand() % blocking_moves_index];
+		free(player_blocking_moves);
+		return cock_block_move;
+	}
+
+	// no winning or blocking move found, check for second best move
+	for (int i = 0; i < index; i++)
+	{
+		move next_move = possible_moves_ptr[i];
+
+		move surroundings[8];
+
+		surroundings[0].row = next_move.row + 1; // row down
+		surroundings[1].row = next_move.row - 1; // row up
+		surroundings[2].col = next_move.col + 1; // col right
+		surroundings[3].col = next_move.col - 1; // col left
+
+		/*
+		X 0 0
+		0 1 0
+		0 0 0
+		*/
+		surroundings[4].row = next_move.row - 1;
+		surroundings[4].row = next_move.col - 1;
+
+		/*
+		0 0 0
+		0 1 0
+		0 0 X
+		*/
+		surroundings[5].row = next_move.row + 1;
+		surroundings[5].row = next_move.col + 1;
+
+		/*
+		0 0 X
+		0 1 0
+		0 0 0
+		*/
+		surroundings[6].row = next_move.row - 1;
+		surroundings[6].row = next_move.col + 1;
+
+		/*
+		0 0 0
+		0 1 0
+		X 0 0
+		*/
+		surroundings[7].row = next_move.row + 1;
+		surroundings[7].row = next_move.col - 1;
+
+		move * legal_second_best_moves = malloc(ROWS * COLS * sizeof(mv));
+		int sindex = 0;
+
+		for (int j = 0; j < 8; j++)
+		{
+			move index_move = surroundings[j];
+
+			// if pos is legal, check whats in it on the board
+			if (!is_pos_not_legal(index_move.row, index_move.col))
+			{
+				// if one of its surroundings is ours, its a second best move
+				if (board[index_move.row][index_move.col] == COMPUTER)
+				{
+					legal_second_best_moves[sindex] = index_move;
+					sindex++;
+				}
+			}
+		}
+
+		// if there are any legal second best moves, return a random one
+		if (sindex > 0)
+		{
+			move second_best_move = legal_second_best_moves[rand() % sindex];
+			free(possible_moves_ptr);
+			free(legal_second_best_moves);
+			return second_best_move;
+		}
+
+		free(legal_second_best_moves);
 	}
 
 	free(possible_moves_ptr);
 
-	// no winning move, return an illegal move as a flag
+	// no winning or blocking or second-best move, return an illegal move as a flag
 	move no_win_move;
 	no_win_move.row = -1;
 	no_win_move.col = -1;
